@@ -13,7 +13,6 @@ public class ClientHandler {
     private DataOutputStream out;
 
 
-
     private String nick;
     private AuthService authService;
 
@@ -25,7 +24,7 @@ public class ClientHandler {
             this.authService = authService;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-            new Thread (() -> {
+            new Thread(() -> {
                 try {
                     authenticate();
                     readMessages();
@@ -37,6 +36,7 @@ public class ClientHandler {
             e.printStackTrace();
         }
     }
+
     public void sendMessage(String message) {
         try {
             out.writeUTF(message);
@@ -44,6 +44,7 @@ public class ClientHandler {
             e.printStackTrace();
         }
     }
+
     public void readMessages() {
         while (true) {
             try {
@@ -59,27 +60,27 @@ public class ClientHandler {
     }
 
     private void authenticate() {   //  /auth login1 pass1
-         while (true) {
+        while (true) {
             try {
                 final String message = in.readUTF();
-                if(message.startsWith("/auth")) {
-                  final String[] split = message.split("\\p{Blank}+");
-                  final String login = split[1];
-                  final String password = split[2];
-                  final String nick = authService.getNickByLoginAndPassword(login, password);
-                  if(nick != null) {
-                      if(server.isNickBusy(nick)) {
-                          sendMessage("Пользователь уже авторизован");
-                          continue;
-                      }
-                      sendMessage("/authok " + nick);
-                      this.nick = nick;
-                      server.broadcast("Пользователь " + nick + " зашёл в чат");
-                      server.subscribe(this);
-                      break;
-                  } else {
-                      sendMessage("Неверные логин и пароль");
-                  }
+                if (message.startsWith("/auth")) {
+                    final String[] split = message.split("\\p{Blank}+");
+                    final String login = split[1];
+                    final String password = split[2];
+                    final String nick = authService.getNickByLoginAndPassword(login, password);
+                    if (nick != null) {
+                        if (server.isNickBusy(nick)) {
+                            sendMessage("Пользователь уже авторизован");
+                            continue;
+                        }
+                        sendMessage("/authok " + nick);
+                        this.nick = nick;
+                        server.broadcast("Пользователь " + nick + " зашёл в чат");
+                        server.subscribe(this);
+                        break;
+                    } else {
+                        sendMessage("Неверные логин и пароль");
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -87,31 +88,31 @@ public class ClientHandler {
         }
     }
 
-     public void closeConnection() {
+    public void closeConnection() {
         sendMessage("/end");
-         if (in != null) {
-             try {
-                 in.close();
-             } catch (IOException e) {
-                 e.printStackTrace();
-             }
-         }
-         if (out != null) {
-             try {
-                 out.close();
-             } catch (IOException e) {
-                 e.printStackTrace();
-             }
-         }
-         if (socket != null) {
-             server.unsubscribe(this);
-             try {
-                 socket.close();
-             } catch (IOException e) {
-                 e.printStackTrace();
-             }
-         }
-     }
+        if (in != null) {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (out != null) {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (socket != null) {
+            server.unsubscribe(this);
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public String getNick() {
         return nick;

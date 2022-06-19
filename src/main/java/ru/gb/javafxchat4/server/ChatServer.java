@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-    public class ChatServer {               // взаимодействие с сервером
+public class ChatServer {               // взаимодействие с сервером
 
     private final List<ClientHandler> clients;
 
@@ -16,8 +16,8 @@ import java.util.List;
     }
 
     public void run() {
-        try(ServerSocket serverSocket = new ServerSocket(8189);
-            AuthService authService = new InMemoryAuthService()) {
+        try (ServerSocket serverSocket = new ServerSocket(8189);
+             AuthService authService = new InMemoryAuthService()) {
             while (true) {
                 System.out.println("Ожидаю подключения...");
                 final Socket socket = serverSocket.accept();
@@ -29,6 +29,7 @@ import java.util.List;
         }
 
     }
+
     public void broadcast(String message) {
         for (ClientHandler client : clients) {
             client.sendMessage(message);
@@ -41,8 +42,8 @@ import java.util.List;
     }
 
     public boolean isNickBusy(String nick) {
-        for(ClientHandler client : clients) {
-            if(nick.equals(client.getNick())) {
+        for (ClientHandler client : clients) {
+            if (nick.equals(client.getNick())) {
                 return true;
             }
         }

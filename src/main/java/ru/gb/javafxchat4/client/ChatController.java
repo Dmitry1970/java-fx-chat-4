@@ -56,7 +56,7 @@ public class ChatController {
 
     public void clickSendButton() {
         final String message = messageField.getText();
-        if(message.isBlank())  {
+        if (message.isBlank()) {
             return;
         }
 
@@ -64,14 +64,16 @@ public class ChatController {
         messageField.clear();
         messageField.requestFocus();
     }
+
     public void addMessage(String message) {
-        messageArea.appendText(message +"\n");
+        messageArea.appendText(message + "\n");
     }
 
     public void setAuth(boolean success) {
-         authBox.setVisible(!success);
-         messageBox.setVisible(success);
+        authBox.setVisible(!success);
+        messageBox.setVisible(success);
     }
+
     public void signinBtnClick() {
         client.sendMessage("/auth " + loginField.getText() + " " + passField.getText());
     }
