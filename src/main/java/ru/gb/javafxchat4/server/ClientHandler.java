@@ -29,6 +29,7 @@ public class ClientHandler {
                     authenticate();
                     readMessages();
                 } finally {
+                    System.out.println("Клиент " + nick + " отключился");
                     closeConnection();
                 }
             }).start();
@@ -51,6 +52,10 @@ public class ClientHandler {
                 final String message = in.readUTF();
                 if ("/end".equals(message)) {
                     break;
+                }
+                if (message.startsWith("/w ")) {
+                    final String[] split = message.split("\\p{Blank}+", 3);
+                    server.sendPrivateMessage(this, split[1], split[2]);
                 }
                 server.broadcast(nick + ": " + message);
             } catch (IOException e) {
@@ -89,6 +94,7 @@ public class ClientHandler {
     }
 
     public void closeConnection() {
+
         sendMessage("/end");
         if (in != null) {
             try {
@@ -120,17 +126,3 @@ public class ClientHandler {
 
 }
 
-//    Вариант кода для отправки личных сообщений из метода public void readMessages():
-//
-//      public void readMessages() {
-//      while (true) {
-//      try {
-//      .............
-//      if (message.startsWith("/auth")) {
-//      final String[] split = message.split("\\p{Blank}+");
-//      final String nick = split[1];
-//      final String privateMessage = split[2];
-//      server.sendPrivateMessage(nick, privateMessage, this);
-//       } catch (IOException e) {
-//         e.printStackTrace();
-//       }

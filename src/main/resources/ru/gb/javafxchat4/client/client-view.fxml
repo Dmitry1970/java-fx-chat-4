@@ -15,7 +15,7 @@
     </padding>
     <VBox>
         <HBox fx:id="authBox">
-            <TextField fx:id="loginField" promptText="login"/>
+            <TextField fx:id="loginField" HBox.hgrow="ALWAYS" promptText="login"/>
             <PasswordField fx:id="passField" promptText="password"/>
             <Button text="Sign in" onAction="#signinBtnClick"/>
         </HBox>

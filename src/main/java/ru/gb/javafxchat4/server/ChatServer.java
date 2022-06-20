@@ -36,7 +36,6 @@ public class ChatServer {               // взаимодействие с се�
         }
     }
 
-
     public void subscribe(ClientHandler client) {
         clients.add(client);
     }
@@ -50,17 +49,18 @@ public class ChatServer {               // взаимодействие с се�
         return false;
     }
 
-
     public void unsubscribe(ClientHandler client) {
         clients.remove(client);
     }
-}
 
-//   Вариант написания метода для отправки личных сообщений от клиента к клиенту:
-//   public void sendPrivateMessage(String nick, String privateMessage, ClientHandler client) throws IOException {
-//    for (ClientHandler client : clients) {
-//        if (client.getNick().equals(nick)) {
-//            client.sendMessage(clientHandler.getNick(), privateMessage);
-//        }
-//    }
-//}
+    public void sendPrivateMessage(ClientHandler senderName, String receiverName, String message) {
+        for (ClientHandler c : clients) {
+            if (c.getNick().equalsIgnoreCase(receiverName)) {
+                c.sendMessage("от " + senderName.getNick() + ": " + message);
+                senderName.sendMessage("пользователю " + receiverName + ": " + message);
+                return;
+            }
+        }
+        senderName.sendMessage("Пользователь " + receiverName + " не в сети");
+    }
+}
