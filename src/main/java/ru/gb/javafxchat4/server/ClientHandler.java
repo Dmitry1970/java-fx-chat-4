@@ -53,11 +53,11 @@ public class ClientHandler {
                 if ("/end".equals(message)) {
                     break;
                 }
-                if (message.startsWith("/w ")) {
+                if (message.startsWith("/w ")) {   // отправка личных сообщений
                     final String[] split = message.split("\\p{Blank}+", 3);
                     server.sendPrivateMessage(this, split[1], split[2]);
-                }
-                server.broadcast(nick + ": " + message);
+                } else
+                    server.broadcast(nick + ": " + message);
             } catch (IOException e) {
                 e.printStackTrace();
             }

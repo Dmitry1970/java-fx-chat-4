@@ -53,12 +53,11 @@ public class ChatServer {               // взаимодействие с се�
         clients.remove(client);
     }
 
-    public void sendPrivateMessage(ClientHandler senderName, String receiverName, String message) {
+    public void sendPrivateMessage(ClientHandler senderName, String receiverName, String message) {  // отправка личных сообщений
         for (ClientHandler c : clients) {
             if (c.getNick().equalsIgnoreCase(receiverName)) {
                 c.sendMessage("от " + senderName.getNick() + ": " + message);
                 senderName.sendMessage("пользователю " + receiverName + ": " + message);
-                return;
             }
         }
         senderName.sendMessage("Пользователь " + receiverName + " не в сети");

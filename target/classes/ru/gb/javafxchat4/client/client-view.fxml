@@ -15,16 +15,16 @@
     </padding>
     <VBox>
         <HBox fx:id="authBox">
-        <TextField fx:id="loginField" promptText = "login"/>
-        <PasswordField fx:id="passField" promptText = "password"/>
-        <Button text="Sign in" onAction="#signinBtnClick"/>
-    </HBox>
-    <VBox fx:id="messageBox" visible="false">
-    <TextArea fx:id="messageArea" editable="false" VBox.vgrow="ALWAYS"/>
-    <HBox spacing="10">
-                 <TextField fx:id="messageField" HBox.hgrow="ALWAYS"/>
-                 <Button text="Send" defaultButton="true" onAction="#clickSendButton"/>
-             </HBox>
+            <TextField fx:id="loginField" HBox.hgrow="ALWAYS" promptText="login"/>
+            <PasswordField fx:id="passField" promptText="password"/>
+            <Button text="Sign in" onAction="#signinBtnClick"/>
+        </HBox>
+        <VBox fx:id="messageBox" visible="false">
+            <TextArea fx:id="messageArea" editable="false" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="10">
+                <TextField fx:id="messageField" HBox.hgrow="ALWAYS"/>
+                <Button text="Send" defaultButton="true" onAction="#clickSendButton"/>
+            </HBox>
         </VBox>
     </VBox>
 </VBox>
