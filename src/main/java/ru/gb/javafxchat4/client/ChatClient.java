@@ -1,9 +1,15 @@
 package ru.gb.javafxchat4.client;
 
+import javafx.application.Platform;
+import ru.gb.javafxchat4.Command;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
+
+import static ru.gb.javafxchat4.Command.*;
 
 public class ChatClient {               // взаимодействие с сервером
 
@@ -34,15 +40,22 @@ public class ChatClient {               // взаимодействие с се�
     }
 
     private void waitAuth() throws IOException {
-        while(true) {
+        while (true) {
             final String message = in.readUTF();
-            if (message.startsWith("/authok")) { //  /authok  nick1
-                final String[] split =  message.split("\\p{Blank}+");
-                final String nick = split[1];
+            final Command command = getCommand(message);
+            final String[] params = command.parse(message);
+            if (command == AUTHOK) { //  /authok  nick1
+                final String[] split = message.split("\\p{Blank}+");
+                final String nick = params[0];
                 controller.setAuth(true);
                 controller.addMessage("Успешная авторизация под ником " + nick);
                 break;
             }
+            if (command == ERROR) {
+                Platform.runLater(() -> controller.showError(params[0]));
+                continue;
+            }
+
         }
     }
 
@@ -74,20 +87,36 @@ public class ChatClient {               // взаимодействие с се�
     private void readMessages() throws IOException {
         while (true) {
             final String message = in.readUTF();
-            if ("/end".equals(message)) {
+            final Command command = getCommand(message);
+            if (END == command) {
                 controller.setAuth(false);
                 break;
             }
-            controller.addMessage(message);
+            final String[] params = command.parse(message);
+            if (ERROR == command) {
+                String messageError = params[0];
+                Platform.runLater(() -> controller.showError(messageError));
+                continue;
+            }
+            if (MESSAGE == command) {
+                Platform.runLater(() -> controller.addMessage(params[0]));
+            }
+            if (CLIENTS == command) {
+                Platform.runLater(() -> controller.updateClientsList(params));
+            }
         }
     }
 
-    public void sendMessage(String message) {
+    private void sendMessage(String message) {
         try {
             out.writeUTF(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendMessage(Command command, String... params) {
+        sendMessage(command.collectMessage(params));
     }
 }
 
