@@ -11,7 +11,7 @@ import java.io.IOException;
 public class ChatClientApp extends Application {
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) throws IOException {    // запускаем код клиента
         FXMLLoader fxmlLoader = new FXMLLoader(ChatClientApp.class.getResource("client-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         stage.setTitle("GB Chat client");
@@ -19,7 +19,8 @@ public class ChatClientApp extends Application {
         stage.show();
 
         ChatController controller = fxmlLoader.getController();
-        stage.setOnCloseRequest(event -> controller.getClient().sendMessage(Command.END));
+        stage.setOnCloseRequest(event -> controller.getClient().sendMessage(Command.END));  // при закрытии формы
+        // отправляется команда END, но сервер продолжает работать
     }
 
     public static void main(String[] args) {

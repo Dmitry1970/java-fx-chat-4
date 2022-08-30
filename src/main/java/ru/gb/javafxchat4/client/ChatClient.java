@@ -7,58 +7,67 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
 
 import static ru.gb.javafxchat4.Command.*;
 
-public class ChatClient {               // взаимодействие с сервером
+public class ChatClient {               // взаимодействие пользователя с сервером
 
-    private Socket socket;
+    private Socket socket;              // сокет клиента
     private DataInputStream in;
     private DataOutputStream out;
-    private final ChatController controller;
+    private final ChatController controller;  // ссылка на контроллер
 
     public ChatClient(ChatController controller) {
         this.controller = controller;
 
     }
 
-    public void openConnection() throws IOException {
-        socket = new Socket("localhost", 8189);
-        in = new DataInputStream(socket.getInputStream());
-        out = new DataOutputStream(socket.getOutputStream());
+    public void openConnection() throws IOException {    // открываем соединение в случае успешного соединения
+        socket = new Socket("localhost", 8189);                // инициализируем сокет
+        in = new DataInputStream(socket.getInputStream());              // чтение сообщений
+        out = new DataOutputStream(socket.getOutputStream());           // запись сообщений
         new Thread(() -> {
             try {
-                waitAuth();
-                readMessages();
+                if (waitAuth()) {         // ожидание успешной авторизации
+                    readMessages();      // читаем сообщение, после авторизации
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 closeConnection();
             }
+
         }).start();
     }
 
-    private void waitAuth() throws IOException {
+    private boolean waitAuth() throws IOException {   // ожидание авторизации
         while (true) {
-            final String message = in.readUTF();
+            final String message = in.readUTF();  // читаем сообщение от сервера
             final Command command = getCommand(message);
             final String[] params = command.parse(message);
-            if (command == AUTHOK) { //  /authok  nick1
-                final String[] split = message.split("\\p{Blank}+");
+            if (command == AUTHOK) { //  /authok  nick1  ожидание от сервера команды "/authok" с nick
                 final String nick = params[0];
-                controller.setAuth(true);
+                controller.setAuth(true);  // в случ. успешн. аутент. скрыв. поле логин и пароля и показ. форму для ввода сообщений
                 controller.addMessage("Успешная авторизация под ником " + nick);
-                break;
+                return true;   // в случае успешной аутентификации
             }
             if (command == ERROR) {
                 Platform.runLater(() -> controller.showError(params[0]));
                 continue;
             }
+            if (command == STOP) {
+                Platform.runLater(() -> controller.showError("Истекло время на авторизацию, перезапустите приложение"));
+                try {
+                    Thread.sleep(5000); // Без sleep пользователь не увидит сообщение об ошибке.
+                    sendMessage(END);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
 
         }
     }
-
 
     private void closeConnection() {
         if (in != null) {
@@ -81,15 +90,16 @@ public class ChatClient {               // взаимодействие с се�
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+       }
+        System.exit(0);
     }
 
-    private void readMessages() throws IOException {
+    private void readMessages() throws IOException { // читаем сообщения после успешной аутентификации
         while (true) {
             final String message = in.readUTF();
             final Command command = getCommand(message);
-            if (END == command) {
-                controller.setAuth(false);
+            if (END == command) {                           // клиент, получив END,
+                controller.setAuth(false);  // разлогинивается
                 break;
             }
             final String[] params = command.parse(message);
@@ -99,15 +109,15 @@ public class ChatClient {               // взаимодействие с се�
                 continue;
             }
             if (MESSAGE == command) {
-                Platform.runLater(() -> controller.addMessage(params[0]));
+                Platform.runLater(() -> controller.addMessage(params[0]));  // отображение простого сообщения
             }
-            if (CLIENTS == command) {
+            if (CLIENTS == command) {                                       // список клиентов
                 Platform.runLater(() -> controller.updateClientsList(params));
             }
         }
     }
 
-    private void sendMessage(String message) {
+    private void sendMessage(String message) {          // отправка сообщения на сервер
         try {
             out.writeUTF(message);
         } catch (IOException e) {
@@ -119,5 +129,6 @@ public class ChatClient {               // взаимодействие с се�
         sendMessage(command.collectMessage(params));
     }
 }
+
 
 

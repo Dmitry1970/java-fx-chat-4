@@ -30,14 +30,14 @@ public class ChatController {
 
     private String selectedNick;
 
-    public ChatController() {
-        this.client = new ChatClient(this);
+    public ChatController() {           // запуск контроллера
+        this.client = new ChatClient(this); // инстанс класса, кот. отвечет за коммуникацию с сервером
         while (true) {
             try {
-                client.openConnection();
-                break;
+                client.openConnection();  // вызываем метод из ChatClient
+                break;                    // если успешное соединение
             } catch (IOException e) {
-                showNotification();
+                showNotification();         // если неуспешное соединение, то сообщение пользователю
             }
         }
     }
@@ -51,8 +51,8 @@ public class ChatController {
         );
         alert.setTitle("Ошибка подключения");
         final Optional<ButtonType> answer = alert.showAndWait();
-        final Boolean isExit = answer
-                .map(select -> select.getButtonData().isCancelButton())
+        final Boolean isExit = answer                                      // если пользователь хочет выйти
+                .map(select -> select.getButtonData().isCancelButton())    // кнопка, нажатая польз. содержит select
                 .orElse(false);
         if (isExit) {
             System.exit(0);
@@ -75,16 +75,16 @@ public class ChatController {
     }
 
     public void addMessage(String message) {
-        messageArea.appendText(message + "\n");
+        messageArea.appendText(message + "\n");  // передаём сообщение в поле сообщений
     }
 
-    public void setAuth(boolean success) {
-        authBox.setVisible(!success);
-        messageBox.setVisible(success);
+    public void setAuth(boolean success) {  // в случае успешной аутентификации
+        authBox.setVisible(!success);  // скрываем поля аутентификации(логин и пароль)
+        messageBox.setVisible(success);  // показываем поле для сообщений
     }
 
-    public void signinBtnClick() {
-        client.sendMessage(Command.AUTH, loginField.getText(), passField.getText());
+    public void signinBtnClick() {   // пользователь нажимает кнопку "Sign in"
+        client.sendMessage(Command.AUTH, loginField.getText(), passField.getText());  // отправка сообщения на сервер на аутентификацию
     }
 
     public void showError(String errorMessage) {
@@ -95,7 +95,7 @@ public class ChatController {
     }
 
     public void selectClient(MouseEvent mouseEvent) {            // вызываем клиента нажатием мыши
-        if (mouseEvent.getClickCount() == 2) {
+        if (mouseEvent.getClickCount() == 2) {                   //   2 клика
             final String selectedNick = clientList.getSelectionModel().getSelectedItem();
             if (selectedNick != null && !selectedNick.isEmpty()) {
                 this.selectedNick = selectedNick;
